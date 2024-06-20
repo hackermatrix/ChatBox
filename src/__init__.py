@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.config.from_object(config("APP_SETTINGS"))
 
-login_manager = LoginManager
+login_manager = LoginManager()
 login_manager.init_app(app)
 bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
@@ -20,3 +20,12 @@ from src.core.routes import core_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(core_bp)
+
+
+from src.auth.models import User
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.filter(User.id==int(user_id)).first()
+
+login_manager.login_view = "auth.login"
